@@ -1,0 +1,55 @@
+{
+  "project_info": {
+    "project_number": "327578509603",
+    "firebase_url": "https://jsontoui.firebaseio.com",
+    "project_id": "jsontoui",
+    "storage_bucket": "jsontoui.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:327578509603:android:2521b9d16e06053d",
+        "android_client_info": {
+          "package_name": "com.thanura.jsontoui"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "327578509603-p6t6u48vet99hpob6894qh77inl8oft0.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.thanura.jsontoui",
+            "certificate_hash": "37cabb9c4a76c564c4b07a7c508947a0eaf5f948"
+          }
+        },
+        {
+          "client_id": "327578509603-ktjhlkjphe254sonqgs8lsn0g58jb2jg.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCzsTXW2xvn8IPO54qNZTQ7o1e-sbHySX8"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "327578509603-ktjhlkjphe254sonqgs8lsn0g58jb2jg.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
