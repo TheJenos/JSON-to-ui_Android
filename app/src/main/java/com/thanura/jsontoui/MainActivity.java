@@ -30,6 +30,7 @@ import com.google.firebase.database.ValueEventListener;
 
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
+import java.util.Date;
 
 import bsh.Interpreter;
 
@@ -41,20 +42,24 @@ public class MainActivity extends AppCompatActivity {
     DatabaseReference Script;
     String UIscript;
     LinearLayout layout;
-    Interpreter interpreter = new Interpreter();
+    Interpreter interpreter;
+
+    private boolean isThere(String s1,String s2){
+        return !s1.equals(s1.replace(s2,"_"));
+    }
 
     private void runString(String code){
-        ByteArrayOutputStream os = new ByteArrayOutputStream();
-        PrintStream ps = new PrintStream(os);
-        System.setErr(ps);
+        //
         try {
+            interpreter.set("context",this);
+            interpreter.set("layout",layout);
             interpreter.eval(code);
         }catch (Exception e){//handle exception
             e.printStackTrace();
+            if(!isThere(e.getMessage(),"not found: "+code.replace(";",""))){
+                InformMe(e.toString());
+            }
         }
-        String output = os.toString();
-        if(output!=null && output.length()>0)
-            InformMe(output);
     }
 
     public void InformMe(String error){
@@ -139,9 +144,14 @@ public class MainActivity extends AppCompatActivity {
         UI.child(UIName).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
+                //layout.removeAllViewsInLayout();
+                interpreter = new Interpreter();
+                Utils.intColorsToBeanShell(interpreter);
+                Utils.intTypeFaceToBeanShell(interpreter);
+                UIscript = getRealData(dataSnapshot,"script");
                 String title = getRealData(dataSnapshot,"title");
                 String Orientation = getRealData(dataSnapshot,"orientation","vertical");
-                UIscript = getRealData(dataSnapshot,"script");
+                if(UIscript != null) loadScript(UIscript);
                 Spannable text = new SpannableString(title);
                 layout.setOrientation(Orientation.equalsIgnoreCase("horizontal")?LinearLayout.HORIZONTAL:LinearLayout.VERTICAL);
                 if (getRealData(dataSnapshot,"title-color") != null)
@@ -158,8 +168,6 @@ public class MainActivity extends AppCompatActivity {
                 if (getRealData(dataSnapshot,"bg-color") != null)
                     layout.setBackgroundColor(getRealColor(dataSnapshot,"bg-color",0));
                 addComponets(dataSnapshot,v);
-                if(UIscript != null) loadScript(UIscript);
-                if(UIscript != null) runString("onCreate();");
                 UI.child(UIName).addValueEventListener(new ValueEventListener() {
                     private boolean FirstTime = true;
                     @Override
@@ -264,6 +272,23 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 runString(dataSnapshot.getValue(String.class));
+                if(UIscript != null) runString("onCreate();");
+                Script.child(ScriptName).addValueEventListener(new ValueEventListener() {
+                    private boolean FirstTime = true;
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+                        if(FirstTime){
+                            FirstTime = false;
+                            return;
+                        }
+                        Toast.makeText(MainActivity.this,"Hotfix Pached,Restart Requested",Toast.LENGTH_LONG).show();
+                    }
+
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
+                        Toast.makeText(MainActivity.this,databaseError.getMessage(),Toast.LENGTH_LONG).show();
+                    }
+                });
             }
 
             @Override
@@ -277,13 +302,10 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        try {interpreter.set("context", this);}catch (Exception e){}
         try {FirebaseDatabase.getInstance().setPersistenceEnabled(true);}catch (Exception e){}
         layout = (LinearLayout) findViewById(R.id.Space);
         database = FirebaseDatabase.getInstance();
         Utils.intColor();
-        Utils.intColorsToBeanShell(interpreter);
-        Utils.intTypeFaceToBeanShell(interpreter);
         BasicInfo = database.getReference("BasicInfo");
         UI = database.getReference("UI");
         Script = database.getReference("Script");
